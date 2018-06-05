@@ -1,18 +1,25 @@
 package sample;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.Key;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 import static sun.security.x509.CertificateAlgorithmId.ALGORITHM;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 public class AES {
 
@@ -81,13 +88,57 @@ public class AES {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
+        String s = secretKey.toString();
+
         FileInputStream inputStream = new FileInputStream(inputFile);
         byte[] inputBytes = new byte[(int) inputFile.length()];
         inputStream.read(inputBytes);
 
-        byte[] outputBytes = cipher.doFinal(inputBytes);
+        byte[] outputBytes = cipher.doFinal(inputBytes); //juz zaszyfrowane
 
-        FileOutputStream outputStream = new FileOutputStream(outputFile);
+        //naglowek xml
+        EncryptedFileHeader encryptedFileHeader = new EncryptedFileHeader();
+        List<User> list=new ArrayList<User>();
+
+        encryptedFileHeader.setAlgorithm("AES");
+        encryptedFileHeader.setKeySize("256");
+        encryptedFileHeader.setBlockSize("128");
+        encryptedFileHeader.setCipherMode("ECB");
+        encryptedFileHeader.setIV("12345");
+        //encryptedFileHeader.setApprovedUsers("6");
+//        encryptedFileHeader.setSessionKey(s);
+//        ApprovedUsers approvedUsers = new ApprovedUsers();
+//        List<ApprovedUsers> list2=new ArrayList<ApprovedUsers>();
+//        encryptedFileHeader.setApprovedUsersList(list2);
+
+        User user = new  User();
+        user.setEmail("qszymaniak@gmail.com");
+        user.setSessionKey(s);
+        list.add(user);
+        encryptedFileHeader.setUserList(list);
+        user = new  User();
+        user.setEmail("asd@gmail.com");
+        user.setSessionKey(s);
+        list.add(user);
+        encryptedFileHeader.setUserList(list);
+
+
+
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(EncryptedFileHeader.class);
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            // output pretty printed
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            jaxbMarshaller.marshal(encryptedFileHeader, outputFile);
+            jaxbMarshaller.marshal(encryptedFileHeader, System.out);
+
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
+        //zapis na koniec
+        FileOutputStream outputStream = new FileOutputStream(outputFile, true); //true daje zapisywanie na koncu pliku
         outputStream.write(outputBytes);
 
         inputStream.close();

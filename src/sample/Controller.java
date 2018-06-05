@@ -92,7 +92,7 @@ public class Controller implements Initializable{
 
         //TODO if czy dane sa poprawne
         sample.AES.encryptFile(key, inputFile, encryptedFile);
-        sample.AES.decryptFile(key, encryptedFile, decryptedFile);
+        //sample.AES.decryptFile(key, encryptedFile, decryptedFile);
     }
 
     @FXML
