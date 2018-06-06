@@ -12,6 +12,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
@@ -50,10 +51,13 @@
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
                                 <Button fx:id="encodeButton" layoutX="516.0" layoutY="302.0" onAction="#encodeButtonAction" text="Encode" AnchorPane.leftAnchor="516.0" AnchorPane.topAnchor="301.0" />
-                                <RadioButton layoutX="46.0" layoutY="128.0" mnemonicParsing="false" text="ECB" AnchorPane.leftAnchor="46.0" AnchorPane.topAnchor="128.0" />
-                                <RadioButton layoutX="196.0" layoutY="128.0" mnemonicParsing="false" text="CBC" AnchorPane.leftAnchor="196.0" AnchorPane.topAnchor="128.0" />
-                                <RadioButton layoutX="271.0" layoutY="128.0" mnemonicParsing="false" text="CFB" AnchorPane.leftAnchor="271.0" AnchorPane.topAnchor="128.0" />
-                                <RadioButton layoutX="122.0" layoutY="128.0" mnemonicParsing="false" text="OFB" AnchorPane.leftAnchor="122.0" AnchorPane.topAnchor="128.0" />
+                                <RadioButton layoutX="46.0" layoutY="128.0" mnemonicParsing="false" text="ECB" AnchorPane.leftAnchor="46.0" AnchorPane.topAnchor="128.0">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="radioButtons" />
+                           </toggleGroup></RadioButton>
+                                <RadioButton layoutX="196.0" layoutY="128.0" mnemonicParsing="false" text="CBC" toggleGroup="$radioButtons" AnchorPane.leftAnchor="196.0" AnchorPane.topAnchor="128.0" />
+                                <RadioButton layoutX="271.0" layoutY="128.0" mnemonicParsing="false" text="CFB" toggleGroup="$radioButtons" AnchorPane.leftAnchor="271.0" AnchorPane.topAnchor="128.0" />
+                                <RadioButton layoutX="122.0" layoutY="128.0" mnemonicParsing="false" text="OFB" toggleGroup="$radioButtons" AnchorPane.leftAnchor="122.0" AnchorPane.topAnchor="128.0" />
                                 <ProgressBar layoutX="45.0" layoutY="305.0" prefHeight="18.0" prefWidth="451.0" progress="0.0" AnchorPane.leftAnchor="46.0" AnchorPane.topAnchor="305.0" />
                                 <Button fx:id="encodeSelect" layoutX="46.0" layoutY="23.0" mnemonicParsing="false" onAction="#encodeSelectAction" text="Select file" AnchorPane.leftAnchor="46.0" AnchorPane.topAnchor="23.0" />
                                 <Label layoutX="46.0" layoutY="78.0" text="Final name" AnchorPane.leftAnchor="46.0" AnchorPane.topAnchor="78.0" />

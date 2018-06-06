@@ -18,6 +18,7 @@ public class EncryptedFileHeader {
     private String CipherMode;
     private String IV;
     private String ApprovedUsers;
+    private String FileExtension;
     //private String SessionKey;
 
     @XmlElements(@XmlElement(name = "Algorithm"))
@@ -63,6 +64,15 @@ public class EncryptedFileHeader {
 
     public void setIV(String IV) {
         this.IV = IV;
+    }
+
+    @XmlElements(@XmlElement(name = "FileExtension"))
+    public String getFileExtension() {
+        return FileExtension;
+    }
+
+    public void setFileExtension(String FileExtension) {
+        this.FileExtension = FileExtension;
     }
 
 //    @XmlElements(@XmlElement(name = "ApprovedUsers"))

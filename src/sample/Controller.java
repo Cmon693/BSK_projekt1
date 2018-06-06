@@ -88,7 +88,11 @@ public class Controller implements Initializable{
 
         File inputFile = new File(path);
         File encryptedFile = new File(pathToSlash + encodeTextField.getText());
-        File decryptedFile = new File(pathToSlash + encodeTextField.getText() + extention);
+        //File decryptedFile = new File(pathToSlash + encodeTextField.getText() + extention);
+
+        //keyComboBox.getValue();
+        System.out.println(keyComboBox.getValue()); //TODO to przekazywane do funkcji
+        //TODO przekazywac tez TRYB
 
         //TODO if czy dane sa poprawne
         sample.AES.encryptFile(key, inputFile, encryptedFile);

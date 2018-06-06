@@ -1,10 +1,11 @@
 package sample;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import static sun.security.x509.CertificateAlgorithmId.ALGORITHM;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 public class AES {
 
@@ -67,7 +69,7 @@ public class AES {
             File decryptedFile = new File("bsk.dec");
 
             sample.AES.encryptFile(key, inputFile, encryptedFile);
-            sample.AES.decryptFile(key, encryptedFile, decryptedFile);
+            //sample.AES.decryptFile(key, encryptedFile, decryptedFile);
 
 //            File inputFile2 = new File("bsk.mp4");
 //            File encryptedFile2 = new File("enc.mp4");
@@ -76,8 +78,45 @@ public class AES {
 //            sample.AES.encryptFile(key, inputFile2, encryptedFile2);
 //            sample.AES.decryptFile(key, encryptedFile2, decryptedFile2);
 
+//            Path p = Paths.get("test.txt");
+//            sample.AES.splitTextFiles(p, 1);
+//            System.out.println("split");
+
+
         }catch (Exception ex){
             System.out.println(ex);
+        }
+    }
+
+    public static void splitTextFiles(Path bigFile, int maxRows) throws IOException{
+        //</EncryptedFileHeader>
+
+        int i = 1;
+        try(BufferedReader reader = Files.newBufferedReader(bigFile)){
+            String line = null;
+            int lineNum = 1;
+            boolean flag = true;
+
+            Path splitFile = Paths.get(i + "split.txt");
+            BufferedWriter writer = Files.newBufferedWriter(splitFile, StandardOpenOption.CREATE);
+
+            while ((line = reader.readLine()) != null) {
+
+                if(lineNum > maxRows && flag == true){
+                    writer.close();
+                    lineNum = 1;
+                    i++;
+                    splitFile = Paths.get(i + "split.txt");
+                    writer = Files.newBufferedWriter(splitFile, StandardOpenOption.CREATE);
+                    flag = false;
+                }
+
+                writer.append(line);
+                writer.newLine();
+                lineNum++;
+            }
+
+            writer.close();
         }
     }
 
@@ -96,6 +135,7 @@ public class AES {
 
         byte[] outputBytes = cipher.doFinal(inputBytes); //juz zaszyfrowane
 
+
         //naglowek xml
         EncryptedFileHeader encryptedFileHeader = new EncryptedFileHeader();
         List<User> list=new ArrayList<User>();
@@ -105,14 +145,9 @@ public class AES {
         encryptedFileHeader.setBlockSize("128");
         encryptedFileHeader.setCipherMode("ECB");
         encryptedFileHeader.setIV("12345");
-        //encryptedFileHeader.setApprovedUsers("6");
-//        encryptedFileHeader.setSessionKey(s);
-//        ApprovedUsers approvedUsers = new ApprovedUsers();
-//        List<ApprovedUsers> list2=new ArrayList<ApprovedUsers>();
-//        encryptedFileHeader.setApprovedUsersList(list2);
 
         User user = new  User();
-        user.setEmail("qszymaniak@gmail.com");
+        user.setEmail("q@gmail.com");
         user.setSessionKey(s);
         list.add(user);
         encryptedFileHeader.setUserList(list);
@@ -121,8 +156,6 @@ public class AES {
         user.setSessionKey(s);
         list.add(user);
         encryptedFileHeader.setUserList(list);
-
-
 
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(EncryptedFileHeader.class);
@@ -133,31 +166,87 @@ public class AES {
             jaxbMarshaller.marshal(encryptedFileHeader, outputFile);
             jaxbMarshaller.marshal(encryptedFileHeader, System.out);
 
+            long len = outputFile.length();
+            System.out.println( outputFile.length());
+
+            //dopisanie dlugosci xml w bajtach na poczatku pliku
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(outputFile)));
+            String result = "";
+            String line = "";
+            while( (line = br.readLine()) != null){
+                result = result + line + "\n";
+            }
+            result = len + "\n" + result;
+            outputFile.delete();
+            FileOutputStream fos = new FileOutputStream(outputFile);
+            fos.write(result.getBytes());
+            fos.flush();
+            System.out.println( outputFile.length());
+
         } catch (JAXBException e) {
             e.printStackTrace();
         }
 
-        //zapis na koniec
+        //zapis szyfrogramu na koniec
         FileOutputStream outputStream = new FileOutputStream(outputFile, true); //true daje zapisywanie na koncu pliku
         outputStream.write(outputBytes);
 
         inputStream.close();
         outputStream.close();
 
+
         System.out.println("Plik " + inputFile + " zaszyfrowano do " + outputFile);
+        System.out.println( outputFile.length());
+
     }
 
     public static void decryptFile(String key, File inputFile, File outputFile) throws Exception {
+
         Key secretKey = new SecretKeySpec(key.getBytes(), "AES");
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
+        //zczytanie pierwszej linii z dlugoscią xml
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
+        String len = br.readLine();
+        br.close();
+        //System.out.println(len);
+
+        int xmlLength = Integer.parseInt(len);
+        int numberLength = 4;
+
+        FileInputStream inputStreamXML = new FileInputStream(inputFile);
+        inputStreamXML.skip(numberLength);
+
+        byte[] inputBytesXML = new byte[xmlLength];
+        inputStreamXML.read(inputBytesXML, 0, xmlLength);
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(EncryptedFileHeader.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(inputBytesXML);
+        EncryptedFileHeader efh = (EncryptedFileHeader) jaxbUnmarshaller.unmarshal(bais); //zczytywanie danych z xmla
+
+        String mode = efh.getCipherMode(); //wyciaganie danych z xmla
+        System.out.println(mode);
+        String algo = efh.getAlgorithm();
+        System.out.println(algo);
+        String iv = efh.getIV();
+        System.out.println(iv);
+        String keySize = efh.getKeySize();
+        System.out.println(keySize);
+
+        inputStreamXML.close();
+
         FileInputStream inputStream = new FileInputStream(inputFile);
-        byte[] inputBytes = new byte[(int) inputFile.length()];
+        byte[] inputBytes = new byte[(int) inputFile.length() - xmlLength - numberLength];
+
+        inputStream.skip(xmlLength + numberLength);
+
         inputStream.read(inputBytes);
 
-        byte[] outputBytes = cipher.doFinal(inputBytes);
 
+        byte[] outputBytes = cipher.doFinal(inputBytes);
         FileOutputStream outputStream = new FileOutputStream(outputFile);
         outputStream.write(outputBytes);
 
