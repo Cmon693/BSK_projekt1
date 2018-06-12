@@ -12,6 +12,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 
 public class RSA {
@@ -38,17 +39,29 @@ public class RSA {
         return cipher.doFinal(encryptedSKey);
     }
 
-    public void saveKeys(String login, String password) throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidKeySpecException, NoSuchPaddingException, IOException {
+    public void saveKeys(String login, byte[] password) throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidKeySpecException, NoSuchPaddingException, IOException {
         KeyPair kp = RSAKeysGenerator();
         String path = System.getProperty("user.home");
         path += "\\AppData\\Local\\bsk\\";
 
+        // tutaj szyfrowanie private hasłem
+        byte[] privateKey = kp.getPrivate().getEncoded();
+        // skracanie
+        SecretKeySpec passKey = new SecretKeySpec(password, 0, 16, "AES");
+
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, passKey); //tutaj typ key juz skrocony
+        byte[] encPriv = cipher.doFinal(privateKey);
+
         FileOutputStream fos1 = new FileOutputStream(path + "public\\" + login + ".pub");
         FileOutputStream fos2 = new FileOutputStream(path + "private\\" + login + ".prv");
         fos1.write(kp.getPublic().getEncoded());
-        fos2.write(kp.getPrivate().getEncoded());
+        fos2.write(encPriv);
         fos1.close();
         fos2.close();
+
+
+
     }
 
     public PublicKey loadPublicKey(String login) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {

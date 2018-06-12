@@ -3,6 +3,7 @@ package sample;
 import java.io.*;
 import java.net.URL;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Observable;
@@ -22,6 +23,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.undo.AbstractUndoableEdit;
+import javax.xml.bind.DatatypeConverter;
 
 public class Controller implements Initializable{
 
@@ -132,6 +134,14 @@ public class Controller implements Initializable{
             System.out.println("Pass ok");
         else return;
 
+        // haslo na hash
+        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+        byte[] encoded = userPassword.getText().getBytes();
+        byte[] passwordHash = sha1.digest(encoded);
+        String s = DatatypeConverter.printHexBinary(passwordHash);
+        System.out.println(s);
+
+
         //zapis uz do pliku
         String path = System.getProperty("user.home");
         path += "\\AppData\\Local\\bsk\\";
@@ -140,16 +150,14 @@ public class Controller implements Initializable{
         fos.write("\n".getBytes());
         fos.write(userLogin.getText().getBytes());
         fos.write("\n".getBytes());
-        fos.write(userPassword.getText().getBytes());
+        fos.write(passwordHash);
         fos.close();
 
-
-        //if (pass.contains("[a-zA-Z]+") == false || pass.contains("[0-9]+") == false || pass.length() < 8 || pass.contains('!',)
 
         encodeListView.getItems().add(userLogin.getText());
 
         RSA rsa = new RSA();
-        rsa.saveKeys(userLogin.getText(), userPassword.getText());
+        rsa.saveKeys(userLogin.getText(), passwordHash);
 
     }
 
@@ -157,7 +165,6 @@ public class Controller implements Initializable{
     private void addUsersToList() throws IOException {
         String path = System.getProperty("user.home");
         path += "\\AppData\\Local\\bsk\\";
-
 
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path + "users.txt"))));

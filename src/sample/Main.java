@@ -7,7 +7,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.control.ComboBox;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.util.Map;
 
 public class Main extends Application {
 
@@ -26,6 +30,26 @@ public class Main extends Application {
         //RSA.main();
 
         AES.main();
+
+        String s = "kuba";
+        String s2 = "kuba";
+
+        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+        try {
+                byte[] encoded = s.getBytes();
+                byte[] digest = sha1.digest(encoded);
+                String ss = DatatypeConverter.printHexBinary(digest);
+
+                byte[] encoded2 = s2.getBytes();
+                byte[] digest2 = sha1.digest(encoded2);
+                String ss2 = DatatypeConverter.printHexBinary(digest2);
+
+                System.out.println(ss);
+                System.out.println(ss2);
+
+        } catch (UnsupportedOperationException e) {
+            System.out.printf("Cant make it work for %s%n");
+        }
 
 
 

@@ -282,8 +282,36 @@ public class AES {
 
         if (login.equals(fieldLogin)) ;
         else  return;
-
         System.out.println("Login correct");
+
+        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+        byte[] encoded = fieldPassword.getBytes();
+        byte[] passwordHash = sha1.digest(encoded);
+
+        //TODO szukaj w pliku loginu
+        String path = System.getProperty("user.home");
+        path += "\\AppData\\Local\\bsk\\";
+
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path + "users.txt"))));
+            bufferedReader.readLine();
+            String tmp;
+            while((tmp = bufferedReader.readLine()) != null){
+                if (tmp.equals(fieldLogin)){
+                    tmp = bufferedReader.readLine();
+                    if (tmp.equals(passwordHash.toString()))
+                        System.out.println("okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
+                    else
+                        System.out.println("blad"); //TODO !!! jest problem z hashem w pliku, zle sie porownuje - zrobic zapis hasle string do pliku !!!
+                }
+            }
+            bufferedReader.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         RSA rsa = new RSA();
         PrivateKey rsaPrivKey = rsa.loadPrivateKey(login); //typ pubKey załadowany z pliku
