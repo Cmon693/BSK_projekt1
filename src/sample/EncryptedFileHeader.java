@@ -13,13 +13,15 @@ import java.util.List;
 public class EncryptedFileHeader {
 
     private String Algorithm;
-    private String KeySize;
+    private int KeySize;
     private String BlockSize;
     private String CipherMode;
-    private String IV;
+    private byte[] IV;
     private String ApprovedUsers;
     private String FileExtension;
-    //private String SessionKey;
+    private byte[] SessionKey;
+    private String Extension;
+    private String Login;
 
     @XmlElements(@XmlElement(name = "Algorithm"))
     public String getAlgorithm() {
@@ -31,11 +33,11 @@ public class EncryptedFileHeader {
     }
 
     @XmlElements(@XmlElement(name = "KeySize"))
-    public String getKeySize() {
+    public int getKeySize() {
         return KeySize;
     }
 
-    public void setKeySize(String KeySize) {
+    public void setKeySize(int KeySize) {
         this.KeySize = KeySize;
     }
 
@@ -58,11 +60,11 @@ public class EncryptedFileHeader {
     }
 
     @XmlElements(@XmlElement(name = "IV"))
-    public String getIV() {
+    public byte[] getIV() {
         return IV;
     }
 
-    public void setIV(String IV) {
+    public void setIV(byte[] IV) {
         this.IV = IV;
     }
 
@@ -86,6 +88,22 @@ public class EncryptedFileHeader {
 //    public void setApprovedUsersList(List<ApprovedUsers> ApprovedUsersList) {
 //        this.ApprovedUsersList = ApprovedUsersList;
 //    }
+    public byte[] getSessionKey() {
+        return SessionKey;
+    }
+    @XmlElement
+    public void setSessionKey(byte[] SessionKey) {
+        this.SessionKey = SessionKey;
+    }
+
+    @XmlElements(@XmlElement(name = "Login"))
+    public String getLogin() {
+        return Login;
+    }
+
+    public void setLogin(String Login) {
+        this.Login = Login;
+    }
 
     @XmlElement(name="User", type=User.class)
     List<User> userList;

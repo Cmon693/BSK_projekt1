@@ -1,19 +1,18 @@
-502
+473
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <EncryptedFileHeader>
     <User>
         <email>q@gmail.com</email>
-        <sessionKey>javax.crypto.spec.SecretKeySpec@15738</sessionKey>
     </User>
     <User>
         <email>asd@gmail.com</email>
-        <sessionKey>javax.crypto.spec.SecretKeySpec@15738</sessionKey>
     </User>
     <Algorithm>AES</Algorithm>
     <BlockSize>128</BlockSize>
     <CipherMode>ECB</CipherMode>
-    <IV>12345</IV>
-    <KeySize>256</KeySize>
+    <FileExtension>.txt</FileExtension>
+    <IV>nxQiut4BBfF2LIcIbVczlg==</IV>
+    <KeySize>128</KeySize>
+    <sessionKey>d73iwmTOJLnxRD4b4s3L6g==</sessionKey>
 </EncryptedFileHeader>
-šúQä}[H²íÍ9˜L§ut¡¯»Øv2…Á¡ñb
-O
+Í\mµ@»	ªG†±Íıë"ª£làÂªúe<S\?

@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class User
 {
     private String Email;
-    private String SessionKey;
+    private byte[] SessionKey;
 
     public String getEmail() {
         return Email;
@@ -18,11 +18,11 @@ public class User
         this.Email = Email;
     }
 
-    public String getSessionKey() {
+    public byte[] getSessionKey() {
         return SessionKey;
     }
     @XmlElement
-    public void setSessionKey(String SessionKey) {
+    public void setSessionKey(byte[] SessionKey) {
         this.SessionKey = SessionKey;
     }
 

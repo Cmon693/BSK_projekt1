@@ -23,7 +23,7 @@ public class Main extends Application {
 
         //Generator.generateWithTime();
 
-        RSA.main();
+        //RSA.main();
 
         AES.main();
 
