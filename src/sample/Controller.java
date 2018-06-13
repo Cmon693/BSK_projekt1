@@ -93,7 +93,7 @@ public class Controller implements Initializable{
     }
 
     //@FXML
-    public void setEncodeProgressBar(float value) {
+    public void setEncodeProgressBar(double value) {
         encodeProgressBar.setProgress(value);
     }
 
@@ -132,14 +132,7 @@ public class Controller implements Initializable{
 
         if(password.length()>=8 && hasLetter.find() && hasDigit.find() && hasSpecial.find())
             System.out.println("Pass ok");
-        else return;
-
-        // haslo na hash
-        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-        byte[] encoded = userPassword.getText().getBytes();
-        byte[] passwordHash = sha1.digest(encoded);
-        String s = DatatypeConverter.printHexBinary(passwordHash);
-        System.out.println(s);
+        else return; // to działa!!!
 
 
         //zapis uz do pliku
@@ -150,14 +143,14 @@ public class Controller implements Initializable{
         fos.write("\n".getBytes());
         fos.write(userLogin.getText().getBytes());
         fos.write("\n".getBytes());
-        fos.write(passwordHash);
+        fos.write(userPassword.getText().getBytes());
         fos.close();
 
 
         encodeListView.getItems().add(userLogin.getText());
 
         RSA rsa = new RSA();
-        rsa.saveKeys(userLogin.getText(), passwordHash);
+        rsa.saveKeys(userLogin.getText(), userPassword.getText());
 
     }
 
@@ -188,6 +181,7 @@ public class Controller implements Initializable{
     private void encodeButtonAction(ActionEvent event) throws Exception {
         //String key = "lv432sdfjnsdfjds";
         encodeProgressBar.setProgress(0.0);
+        System.out.println(encodeProgressBar.getProgress());
 
         String path = encodeLabel.getText();
         String extention = path.substring(path.lastIndexOf('.'), path.length());
@@ -205,10 +199,12 @@ public class Controller implements Initializable{
         String login = encodeListView.getSelectionModel().getSelectedItem().toString();
 
         //TODO if czy dane sa poprawne
-        sample.AES.encryptFile(keyLength, cipherMode, extention, inputFile, encryptedFile, login);
-        //sample.AES.decryptFile(key, encryptedFile, decryptedFile);
+        AES aes = new AES();
+        aes.encryptFile(keyLength, cipherMode, extention, inputFile, encryptedFile, login);
 
         encodeProgressBar.setProgress(1.0);
+        System.out.println(encodeProgressBar.getProgress());
+
     }
 
     @FXML
@@ -226,7 +222,8 @@ public class Controller implements Initializable{
         String password = decodePassword.getText();
 
         //TODO if czy dane sa poprawne
-        sample.AES.decryptFile(encryptedFile, PathName, login, password);
+        AES aes = new AES();
+        aes.decryptFile(encryptedFile, PathName, login, password);
     }
 
     @Override

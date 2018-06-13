@@ -13,6 +13,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 
 public class RSA {
@@ -39,15 +40,22 @@ public class RSA {
         return cipher.doFinal(encryptedSKey);
     }
 
-    public void saveKeys(String login, byte[] password) throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidKeySpecException, NoSuchPaddingException, IOException {
+    public void saveKeys(String login, String password) throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidKeySpecException, NoSuchPaddingException, IOException {
         KeyPair kp = RSAKeysGenerator();
         String path = System.getProperty("user.home");
         path += "\\AppData\\Local\\bsk\\";
 
+        // haslo na hash
+        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+        byte[] encoded = password.getBytes();
+        byte[] passwordHash = sha1.digest(encoded);
+        String s = DatatypeConverter.printHexBinary(passwordHash);
+        System.out.println(s);
+
         // tutaj szyfrowanie private hasłem
         byte[] privateKey = kp.getPrivate().getEncoded();
         // skracanie
-        SecretKeySpec passKey = new SecretKeySpec(password, 0, 16, "AES");
+        SecretKeySpec passKey = new SecretKeySpec(passwordHash, 0, 16, "AES");
 
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, passKey); //tutaj typ key juz skrocony
@@ -79,17 +87,27 @@ public class RSA {
         return publicKey;
     }
 
-    public PrivateKey loadPrivateKey(String login) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    public PrivateKey loadPrivateKey(String login, byte[] passwordHash) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         String path = System.getProperty("user.home");
         path += "\\AppData\\Local\\bsk\\";
 
-        FileInputStream fis = new FileInputStream(path + "private\\" + login + ".prv");
-        byte[] privateKeyBytes = new byte[1024];
+        File file = new File(path + "private\\" + login + ".prv");
+        FileInputStream fis = new FileInputStream(file);
+        byte[] privateKeyBytes = new byte[(int)file.length()];
         fis.read(privateKeyBytes);
         fis.close();
 
+        // skracanie i decode
+
+        SecretKeySpec passKey = new SecretKeySpec(passwordHash, 0, 16, "AES");
+
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, passKey); //tutaj typ key juz skrocony
+        byte[] decPriv = cipher.doFinal(privateKeyBytes); //dziala
+
+
         KeyFactory kf = KeyFactory.getInstance("RSA");
-        PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
+        PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(decPriv));
 
         return privateKey;
     }

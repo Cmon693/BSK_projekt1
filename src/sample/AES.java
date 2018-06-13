@@ -31,12 +31,11 @@ public class AES {
     private static final String ALGO = "AES";
     private byte[] keyValue;
 
-    public AES (String key){
-        keyValue = key.getBytes();
-    }
+//    public aesKey (String key){
+//        keyValue = key.getBytes();
+//    }
 
 
-    //TODO gen sess key
     public static SecretKey getSKey(int kSize) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, IOException {
 
         KeyGenerator keygen = KeyGenerator.getInstance("AES");
@@ -49,19 +48,20 @@ public class AES {
     }
 
 
-    public static void main () {
+    public void main () {
         try{
             System.out.println("\nSZYFR BLOKOWY AES");
 
-            AES aes = new AES("lv432sdfjnsdfjds");
-            String encdata = aes.encrypt("Jakub Szymanski");
-            System.out.println("Dane zaszyfrowane: " + encdata);
-            String decdata = aes.decrypt(encdata);
-            System.out.println("Dane odszyfrowane: " + decdata);
-            System.out.println("-----------------------------");
+//            AES aes = new AES("lv432sdfjnsdfjds");
+//            String encdata = aes.encrypt("Jakub Szymanski");
+//            System.out.println("Dane zaszyfrowane: " + encdata);
+//            String decdata = aes.decrypt(encdata);
+//            System.out.println("Dane odszyfrowane: " + decdata);
 
-            File inputFile = new File("bsk.txt");
-            File encryptedFile = new File("bsk.enc");
+            System.out.println("-----------------------------");
+//
+//            File inputFile = new File("bsk.txt");
+//            File encryptedFile = new File("bsk.enc");
             //File decryptedFile = new File("bsk.dec");
 
             //sample.AES.encryptFile(128, "ECB", ".txt", inputFile, encryptedFile, "login");
@@ -107,7 +107,7 @@ public class AES {
     }
 
 
-    public static void encryptFile(int keySize, String cipherMode, String extension, File inputFile, File outputFile, String login) throws Exception {
+    public void encryptFile(int keySize, String cipherMode, String extension, File inputFile, File outputFile, String login) throws Exception {
 
         String algorythm = "AES";
 
@@ -144,7 +144,7 @@ public class AES {
         //
         byte[] outputBytes = new byte[outputSize];
 
-        float f, a, b = inputBytes.length;
+        double f, a, b = inputBytes.length;
 
 
         int i = 0;
@@ -155,9 +155,10 @@ public class AES {
                     a = i;
                     f = a / b;
                     System.out.println(f*100 + " %");
-                    //Controller.setEncodeProgressBar(f); //TODO progress
+                    //Controller.setEncodeProgressBar(f); //TODO progressbar
                     //Controller controller = new Controller();
-                    //controller.encodeProgressBar.setProgress(f);
+                   //controller.encodeProgressBar.setProgress(f);
+                    //controller.setEncodeProgressBar(f);
                 }
             }
             if (i == inputBytes.length)
@@ -236,7 +237,7 @@ public class AES {
         //System.out.println( outputFile.length());
     }
 
-    public static void decryptFile(File inputFile, String pathName, String fieldLogin, String fieldPassword) throws Exception {
+    public void decryptFile(File inputFile, String pathName, String fieldLogin, String fieldPassword) throws Exception {
 
         //zczytanie pierwszej linii z dlugoscią xml
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
@@ -280,17 +281,17 @@ public class AES {
         inputStreamXML.close();
 
 
-        if (login.equals(fieldLogin)) ;
+        if (login.equals(fieldLogin))
+            System.out.println("Login correct");
         else  return;
-        System.out.println("Login correct");
 
-        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-        byte[] encoded = fieldPassword.getBytes();
-        byte[] passwordHash = sha1.digest(encoded);
 
-        //TODO szukaj w pliku loginu
+        //szukaj w pliku loginu
         String path = System.getProperty("user.home");
         path += "\\AppData\\Local\\bsk\\";
+
+        byte[] encoded;
+        byte[] passwordHash = null;
 
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path + "users.txt"))));
@@ -299,10 +300,14 @@ public class AES {
             while((tmp = bufferedReader.readLine()) != null){
                 if (tmp.equals(fieldLogin)){
                     tmp = bufferedReader.readLine();
-                    if (tmp.equals(passwordHash.toString()))
-                        System.out.println("okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
+                    if (tmp.equals(fieldPassword)) {
+                        System.out.println("ok");
+                        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+                        encoded = fieldPassword.getBytes();
+                        passwordHash = sha1.digest(encoded);
+                    }
                     else
-                        System.out.println("blad"); //TODO !!! jest problem z hashem w pliku, zle sie porownuje - zrobic zapis hasle string do pliku !!!
+                        System.out.println("blad");
                 }
             }
             bufferedReader.close();
@@ -313,9 +318,10 @@ public class AES {
             e.printStackTrace();
         }
 
+        // skrot hasha i odszyfrowanei privKey w loadPrivateKey
         RSA rsa = new RSA();
-        PrivateKey rsaPrivKey = rsa.loadPrivateKey(login); //typ pubKey załadowany z pliku
-        byte[] decodedSKey = rsa.decryptSKey(rsaPrivKey, sessionKey); //szyfrowanie tym pubKey -> to idzie do xmla
+        PrivateKey rsaPrivKey = rsa.loadPrivateKey(login, passwordHash);
+        byte[] decodedSKey = rsa.decryptSKey(rsaPrivKey, sessionKey);
 
         //decode
         SecretKeySpec secretKey = new SecretKeySpec(decodedSKey, algorythm);
@@ -403,7 +409,7 @@ public class AES {
         return key;
     }
 
-    public static byte[] getIV() throws IOException {   //TODO dodac do encode, zwraca losowy wektor IV
+    public static byte[] getIV() throws IOException {
         SecureRandom srandom = new SecureRandom();
         byte[] iv = new byte[16];
         srandom.nextBytes(iv);

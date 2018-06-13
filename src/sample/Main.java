@@ -28,31 +28,8 @@ public class Main extends Application {
         //Generator.generateWithTime();
 
         //RSA.main();
-
-        AES.main();
-
-        String s = "kuba";
-        String s2 = "kuba";
-
-        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-        try {
-                byte[] encoded = s.getBytes();
-                byte[] digest = sha1.digest(encoded);
-                String ss = DatatypeConverter.printHexBinary(digest);
-
-                byte[] encoded2 = s2.getBytes();
-                byte[] digest2 = sha1.digest(encoded2);
-                String ss2 = DatatypeConverter.printHexBinary(digest2);
-
-                System.out.println(ss);
-                System.out.println(ss2);
-
-        } catch (UnsupportedOperationException e) {
-            System.out.printf("Cant make it work for %s%n");
-        }
-
-
-
+        AES aes = new AES();
+        aes.main();
 
 
     }
