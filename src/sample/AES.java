@@ -15,6 +15,7 @@ import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.ProgressBar;
 import sun.misc.BASE64Decoder;
@@ -30,6 +31,8 @@ public class AES {
 
     private static final String ALGO = "AES";
     private byte[] keyValue;
+    public DoubleProperty progress;
+
 
 //    public aesKey (String key){
 //        keyValue = key.getBytes();
@@ -43,6 +46,7 @@ public class AES {
         rand.generateSeed(kSize);
         keygen.init(kSize, rand);
         SecretKey sessionKey = keygen.generateKey();
+
 
         return sessionKey;
     }
@@ -307,7 +311,7 @@ public class AES {
                         passwordHash = sha1.digest(encoded);
                     }
                     else
-                        System.out.println("blad");
+                        return;
                 }
             }
             bufferedReader.close();

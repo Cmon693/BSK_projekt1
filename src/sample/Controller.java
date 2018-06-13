@@ -94,7 +94,7 @@ public class Controller implements Initializable{
 
     //@FXML
     public void setEncodeProgressBar(double value) {
-        encodeProgressBar.setProgress(value);
+        encodeProgressBar.progressProperty().set(value);
     }
 
     @FXML
@@ -106,6 +106,7 @@ public class Controller implements Initializable{
             encodeLabel.setText(selectedFile.getAbsolutePath());
         }
         System.out.println(encodeLabel.getText());
+        encodeProgressBar.progressProperty().set(0.0);
     }
 
     @FXML
@@ -116,6 +117,7 @@ public class Controller implements Initializable{
         {
             decodeLabel.setText(selectedFile.getAbsolutePath());
         }
+        decodeProgressBar.progressProperty().set(0.0);
     }
 
     @FXML
@@ -137,7 +139,10 @@ public class Controller implements Initializable{
 
         //zapis uz do pliku
         String path = System.getProperty("user.home");
-        path += "\\AppData\\Local\\bsk\\";
+        path += "\\AppData\\Local\\";
+        new File(path += "bsk\\").mkdir();
+        new File(path + "public").mkdir();
+        new File(path + "private").mkdir();
 
         FileOutputStream fos = new FileOutputStream(new File(path + "users.txt"), true);
         fos.write("\n".getBytes());
@@ -180,8 +185,10 @@ public class Controller implements Initializable{
     @FXML
     private void encodeButtonAction(ActionEvent event) throws Exception {
         //String key = "lv432sdfjnsdfjds";
-        encodeProgressBar.setProgress(0.0);
-        System.out.println(encodeProgressBar.getProgress());
+        setEncodeProgressBar(0.0);
+        AES aes = new AES();
+        //encodeProgressBar.progressProperty().bind(aes.progressProperty());
+
 
         String path = encodeLabel.getText();
         String extention = path.substring(path.lastIndexOf('.'), path.length());
@@ -199,17 +206,14 @@ public class Controller implements Initializable{
         String login = encodeListView.getSelectionModel().getSelectedItem().toString();
 
         //TODO if czy dane sa poprawne
-        AES aes = new AES();
+        //AES aes = new AES();
         aes.encryptFile(keyLength, cipherMode, extention, inputFile, encryptedFile, login);
 
-        encodeProgressBar.setProgress(1.0);
-        System.out.println(encodeProgressBar.getProgress());
-
+        encodeProgressBar.progressProperty().set(1.0);
     }
 
     @FXML
     private void decodeButtonAction(ActionEvent event) throws Exception {
-        //String key = "lv432sdfjnsdfjds"; //TODO ten klucz musi byc przekazywany i chyba zaszyfrowany
 
         String path = decodeLabel.getText();
         String pathToSlash = path.substring(0, path.lastIndexOf('\\') + 1);
@@ -224,6 +228,7 @@ public class Controller implements Initializable{
         //TODO if czy dane sa poprawne
         AES aes = new AES();
         aes.decryptFile(encryptedFile, PathName, login, password);
+        decodeProgressBar.progressProperty().set(1.0);
     }
 
     @Override
@@ -231,8 +236,8 @@ public class Controller implements Initializable{
 
         keyComboBox.setItems(keyList);
         modeComboBox.setItems(modeList);
-        encodeProgressBar.setProgress(0.0);
-        //decodeProgressBar.setProgress(0.0);
+        encodeProgressBar.progressProperty().set(0.0);
+        decodeProgressBar.progressProperty().set(0.0);
 
         try {
             addUsersToList();
